@@ -47,25 +47,26 @@ public class JdbcUtils {
             "lastName varchar(30)" +
             ")";
 
-    public static void executeU(String sql) {
+    public static void executeU(String create1, String create2, String insert1, String insert2,
+                                String select1, String select2, String select3, String select4) {
         try (Connection connection = getConnection();
              Statement statement = connection.createStatement()) {
             //создаем USER
-            System.out.println("Changed rows = " + statement.executeUpdate(sql));
-            //заносим данные в USER
-            statement.executeUpdate(
-                    "insert into user values (1, 'login1', 'name1', 'lastName1');" +
-                    "insert into user values (2, 'login2', 'name2', 'lastName2');" +
-                    "insert into user values (3, 'login3', 'name3', 'lastName3');" +
-                            "insert into user values (4, 'login4', 'name4', 'lastName4');" +
-                            "insert into user values (5, 'login5', 'name5', 'lastName5');" +
-                            "insert into user values (6, 'login6', 'name6', 'lastName6');" +
-                            "insert into user values (7, 'login7', 'name7', 'lastName7');" +
-                            "insert into user values (8, 'login8', 'name8', 'lastName8');"
-            );
+            System.out.println("Table 1 created. Changed rows = "
+                    + statement.executeUpdate(create1));
+            //создаем POSTS
+            System.out.println("Table 2 created. Changed rows = "
+                    + statement.executeUpdate(create2));
+            //заполняем USER
+            System.out.println("Data inserted into table 1. Changed rows = "
+                    + statement.executeUpdate(insert1));
+            //заполняем POSTS
+            System.out.println("Data inserted into table 2. Changed rows = "
+                    + statement.executeUpdate(insert2));
+
 
             //выводим всю USER
-            ResultSet rs = statement.executeQuery("select * from user");
+            ResultSet rs = statement.executeQuery(select1);
             System.out.println("Table USER: ");
             while(rs.next()) {
 
@@ -78,33 +79,10 @@ public class JdbcUtils {
                         "; login = " + login + "; names = " + names + "; lastName = "
                         + lastName);
         }
-                //создаем POSTS
-                statement.executeUpdate("create schema posts2");
-                statement.executeUpdate(
-                        "create table if not exists posts2.posts(" +
-                        "postId int primary key auto_increment," +
-                        "title varchar(100) not null," +
-                        "text varchar(300) not null," +
-                                "postedAt timestamp not null," +
-                                "userId int not null," +
-                        "foreign key (userId) references public.user(userId)" +
-                        ")"
-                );
-//                заносим данные в POSTS
-            statement.executeUpdate(
-                    "insert into posts2.posts values (1, 'funnyGirl', 'dont rain on my parade', CURRENT_TIMESTAMP(), 3);" +
-                            "insert into posts2.posts values (2, 'westSideStory', 'a boy like that will kill your brother', CURRENT_TIMESTAMP(), 8);" +
-                            "insert into posts2.posts values (3, 'shakespeare', 'once more unto the breach', CURRENT_TIMESTAMP(), 1);" +
-                            "insert into posts2.posts values (4, 'lesMiserables', 'another day, another destiny', CURRENT_TIMESTAMP(), 2);" +
-                            "insert into posts2.posts values (5, 'hamilton', 'i am not throwing away my shot', CURRENT_TIMESTAMP(), 4);" +
-                            "insert into posts2.posts values (6, 'funHome', 'where you tell me you see me', CURRENT_TIMESTAMP(), 6);" +
-                            "insert into posts2.posts values (7, 'grease', 'there are worse things i could do', CURRENT_TIMESTAMP(), 6);" +
-                            "insert into posts2.posts values (8, 'westSideStory', 'forget that boy and find another', CURRENT_TIMESTAMP(), 5);" +
-                            "insert into posts2.posts values (9, 'company', 'someone to sit in your chair and ruin your sleep', CURRENT_TIMESTAMP(), 2)"
-            );
+//
 
 //                выводим всю POSTS
-                ResultSet rs2 = statement.executeQuery("select * from posts2.posts");
+                ResultSet rs2 = statement.executeQuery(select2);
                 System.out.println("\n Table POSTS: ");
                 while(rs2.next()) {
 
@@ -121,11 +99,7 @@ public class JdbcUtils {
 
                 //only logins for users with posts
             System.out.println("\n Showing only logins for distinct users with posts: ");
-            ResultSet rs4 = statement.executeQuery("select distinct login " +
-                    "from posts2.posts " +
-                    "inner join public.user " +
-                    "on public.user.userId = posts2.posts.userId"
-            );
+            ResultSet rs4 = statement.executeQuery(select3);
 
             while(rs4.next()) {
 
@@ -136,11 +110,7 @@ public class JdbcUtils {
 
                 //SELECT_USERS_WITH_POSTS
             System.out.println("\n Showing login, text and time of the post only for users with posts: ");
-            ResultSet rs3 = statement.executeQuery("select distinct login, text, postedAt " +
-            "from posts2.posts " +
-            "inner join public.user " +
-            "on public.user.userId = posts2.posts.userId"
-            );
+            ResultSet rs3 = statement.executeQuery(select4);
 
             while(rs3.next()) {
 
@@ -168,53 +138,57 @@ public class JdbcUtils {
 
     }
 
-//    public static final String CREATE_TABLE_POSTS=
-//            "create table if not exists posts(" +
-//            "postId int primary key auto_increment," +
-//            "title varchar(100) not null," +
-//            "text varchar(300) not null," +
-//            "postedAt timestamp not null," +
-//            "foreign key (userId) references user(userId)" +
-//            ")";
+    public static final String CREATE_TABLE_POSTS=
+           "create schema posts2;" +
+						"create table if not exists posts2.posts(" +
+                                "postId int primary key auto_increment," +
+                                "title varchar(100) not null," +
+                                "text varchar(300) not null," +
+                                "postedAt timestamp not null," +
+                                "userId int not null," +
+                                "foreign key (userId) references public.user(userId)" +
+                                ")";
 
 
 
-//    public static final String INSERT_INTO_USER=
-//            "insert into user (login, name, lastName)" +
-//            "values" +
-//                    "(login1, name1, lastName1;" +
-//                     "login2, name2, lastName2;" +
-//                     "login3, name3, lastName3;" +
-//                     "login4, name4, lastName4;" +
-//                     "login5, name5, lastName5;" +
-//                     "login6, name6, lastName6;" +
-//                     "login7, name7, lastName7;" +
-//                     "login8, name8, lastName8;" +
-//            ")";
+    public static final String INSERT_INTO_USER=
+                    "insert into user values (1, 'login1', 'name1', 'lastName1');" +
+                    "insert into user values (2, 'login2', 'name2', 'lastName2');" +
+                    "insert into user values (3, 'login3', 'name3', 'lastName3');" +
+                    "insert into user values (4, 'login4', 'name4', 'lastName4');" +
+                    "insert into user values (5, 'login5', 'name5', 'lastName5');" +
+                    "insert into user values (6, 'login6', 'name6', 'lastName6');" +
+                    "insert into user values (7, 'login7', 'name7', 'lastName7');" +
+                    "insert into user values (8, 'login8', 'name8', 'lastName8');";
 
-//    public static final String INSERT_INTO_POSTS=
-//            "insert into posts values (1, funnyGirl, 'don't rain on my parade', time.now(), 3);" +
-//            "2, westSideStory, 'a boy like that will kill you brother', time.now(), 8;" +
-//            "3, shakespeare, 'once more unto the breach', time,now(), 1;" +
-//            "4, lesMisarables, 'another day, another destiny', time.now(), 2;" +
-//            "5, hamilton, 'i am not throwing away my shot', time.now(), 4;" +
-//            "6, funHome, 'where you tell me you see me', time.now(), 6;" +
-//            "7, grease, 'there are worse things i could do', time.now(), 6;" +
-//            "8, westSideStory, 'forget that boy and find another', time(now), 5;" +
-//            "9, company, 'someone to sit in your chair and ruin your sleep', time(now), 2" +
-//            ")";
+    public static final String INSERT_INTO_POSTS=
+            "insert into posts2.posts values (1, 'funnyGirl', 'dont rain on my parade', CURRENT_TIMESTAMP(), 3);" +
+                    "insert into posts2.posts values (2, 'westSideStory', 'a boy like that will kill your brother', CURRENT_TIMESTAMP(), 8);" +
+                    "insert into posts2.posts values (3, 'shakespeare', 'once more unto the breach', CURRENT_TIMESTAMP(), 1);" +
+                    "insert into posts2.posts values (4, 'lesMiserables', 'another day, another destiny', CURRENT_TIMESTAMP(), 2);" +
+                    "insert into posts2.posts values (5, 'hamilton', 'i am not throwing away my shot', CURRENT_TIMESTAMP(), 4);" +
+                    "insert into posts2.posts values (6, 'funHome', 'where you tell me you see me', CURRENT_TIMESTAMP(), 6);" +
+                    "insert into posts2.posts values (7, 'grease', 'there are worse things i could do', CURRENT_TIMESTAMP(), 6);" +
+                    "insert into posts2.posts values (8, 'westSideStory', 'forget that boy and find another', CURRENT_TIMESTAMP(), 5);" +
+                    "insert into posts2.posts values (9, 'company', 'someone to sit in your chair and ruin your sleep', CURRENT_TIMESTAMP(), 2)";
 
-//    public static final String SELECT_FROM_USER=
-//            "select * from user";
+    public static final String SELECT_FROM_USER=
+            "select * from public.user";
 
-//    public static final String SELECT_FROM_POSTS=
-//            "select * from posts";
+    public static final String SELECT_FROM_POSTS=
+            "select * from posts2.posts";
 
-//    public static final String SELECT_USERS_WITH_POSTS=
-//            "select login, text, postedAt" +
-//            "from posts" +
-//            "inner join user" +
-//            "on user.userId = posts.userId";
+    public static final String SELECT_LOGINS_WITH_POSTS=
+            "select distinct login " +
+            "from posts2.posts " +
+            "inner join public.user " +
+            "on public.user.userId = posts2.posts.userId";
+
+    public static final String SELECT_USERS_WITH_POSTS=
+            "select distinct login, text, postedAt " +
+            "from posts2.posts " +
+            "inner join public.user " +
+            "on public.user.userId = posts2.posts.userId";
 
 
 
